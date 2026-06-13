@@ -178,18 +178,40 @@ body::after{
 .arena-inner{position:relative;width:100%;padding-bottom:56.25%;background:#B8DFF5}
 /* 배경 자연 장면 */
 .arena-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-/* 드롭존 (우측 50%) — 빛의 공간 */
-.drop-zone{
-  position:absolute;right:0;top:0;bottom:0;width:50%;
-  border-left:3px dashed rgba(255,255,255,.45);
-  display:flex;align-items:center;justify-content:center;flex-direction:column;
-  border-radius:0 18px 18px 0;transition:background .25s;pointer-events:none;
+/* 퍼즐 블랭크 — 하양이 자리 */
+.puzzle-blank{
+  position:absolute;left:14%;top:33%;width:23%;height:49%;
+  background:rgba(148,204,165,.80);
+  border:3.5px dashed rgba(255,255,255,.90);
+  border-radius:16px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4%;
+  pointer-events:none;
+  transition:opacity .42s,background .25s,border-color .22s,border-style .22s;
+  animation:blankpulse 1.9s ease-in-out infinite;
 }
-.drop-zone.hover{background:rgba(255,255,255,.2)}
-.drop-zone.success{background:rgba(240,192,48,.25)}
-/* 양 드래거블 */
+.puzzle-blank.snap-near{
+  background:rgba(255,238,130,.84);
+  border-color:rgba(255,215,0,.95);
+  border-style:solid;
+  animation:none;
+}
+.puzzle-blank .sil{
+  width:72%;height:auto;display:block;
+  filter:brightness(0) invert(1) opacity(.38);
+  pointer-events:none;
+}
+.blank-label{
+  font-size:9px;color:rgba(255,255,255,.96);font-weight:900;
+  text-align:center;text-shadow:0 1px 3px rgba(0,0,0,.48);
+  line-height:1.35;pointer-events:none;
+}
+@keyframes blankpulse{
+  0%,100%{border-color:rgba(255,255,255,.90)}
+  50%{border-color:rgba(255,255,255,.28)}
+}
+/* 양 드래거블 — 오른쪽 시작 */
 .sheep-drag{
-  position:absolute;left:5%;top:38%;transform:translateY(-50%);
+  position:absolute;left:62%;top:36%;
   cursor:grab;touch-action:none;z-index:10;width:22%;
 }
 .sheep-drag img{width:100%;height:auto;display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18))}
@@ -320,7 +342,7 @@ body::after{
     <div class="verse">"나는 선한 목자라"</div>
     <div class="vsrc">요한복음 10:11</div>
 
-    <button class="playbtn pulse" id="playBtn" onclick="playVerse()">🔊</button>
+    <button class="playbtn pulse" id="playBtn" onclick="playVerse()"><svg width="42" height="42" viewBox="0 0 42 42" fill="none" aria-hidden="true"><rect x="2" y="14" width="12" height="14" rx="4" fill="white"/><path d="M14 13 L27 5 L27 37 L14 29Z" fill="white"/><path d="M30 16 C33 19,33 23,30 26" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M34 12 C39 17,39 25,34 30" stroke="rgba(255,255,255,.68)" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="7" cy="10" r="3.5" fill="#FFE566"/><line x1="10.5" y1="10" x2="10.5" y2="2" stroke="#FFE566" stroke-width="2.5" stroke-linecap="round"/><line x1="10.5" y1="2" x2="15.5" y2="4.5" stroke="#FFE566" stroke-width="2" stroke-linecap="round"/><circle cx="37" cy="8" r="2.8" fill="#FF9EDB"/><circle cx="39" cy="19" r="1.5" fill="rgba(255,255,255,.55)"/><circle cx="39" cy="26" r="1.5" fill="rgba(255,255,255,.55)"/></svg></button>
 
     <div class="inst">
       버튼을 눌러 <strong>말씀을 들어요!</strong><br>
@@ -351,18 +373,13 @@ body::after{
       <img class="arena-bg" src="assets/ppt_image16.webp" alt="선한 목자 예수님"
         onerror="this.style.background='#B8DFF5'">
 
-      <!-- ★ 드롭존: 오른쪽 45% — 예수님 계신 쪽 ★ -->
-      <div class="drop-zone" id="dropZone">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
-          <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-            <circle cx="26" cy="26" r="24" fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.55)" stroke-width="2.5" stroke-dasharray="5 3"/>
-            <text x="26" y="32" font-size="22" text-anchor="middle">🤝</text>
-          </svg>
-          <div id="dropHint" style="font-size:12px;color:#fff;font-weight:900;text-align:center;text-shadow:0 1px 4px rgba(0,0,0,.5);line-height:1.4;padding:0 4px">예수님<br>손잡아요!</div>
-        </div>
+      <!-- ★ 퍼즐 블랭크: 하양이 자리 (예수님 왼쪽) ★ -->
+      <div class="puzzle-blank" id="puzzleBlank">
+        <img class="sil" src="assets/hayang.png" alt="">
+        <div class="blank-label">여기에<br>하양이를!</div>
       </div>
 
-      <!-- ★ 드래거블: 하양이 lets_go ★ -->
+      <!-- ★ 드래거블: 하양이 (오른쪽에서 시작) ★ -->
       <div class="sheep-drag floating" id="sheepDrag">
         <img src="assets/hayang.png" alt="하양이"
           onerror="this.outerHTML='<div style=font-size:52px>🐑</div>'">
@@ -371,7 +388,7 @@ body::after{
   </div>
 
   <div class="stars"><span class="star lit">⭐</span><span class="star" id="s2star">⭐</span></div>
-  <div class="inst" id="s2msg">하양이를 잡고 오른쪽 <strong>예수님께 끌어가요!</strong></div>
+  <div class="inst" id="s2msg">하양이를 잡고 <strong>예수님 옆 빈 자리에 맞춰요!</strong></div>
 
   <div class="nav-row" id="s2nav" style="display:none">
     <button class="btn btn-y fullbtn" onclick="go(3)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M14 6l6 6-6 6"/></svg> 다음!</button>
@@ -607,21 +624,23 @@ function succeed(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.22),
 function wrongSnd(){[300,250,210].forEach((f,i)=>setTimeout(()=>beep(f,.14,"sawtooth"),i*95));}
 function litStar(id){const e=document.getElementById(id);if(e)e.classList.add("lit");}
 
-/* ── S2 드래그 (touch + mouse) ── */
+/* ── S2 퍼즐 드래그 (touch + mouse) ── */
 let dragging=false,startOX=0,startOY=0,dropped=false;
 function initDrag(){
   const sheep=document.getElementById("sheepDrag");
   const arena=document.getElementById("arenaInner");
-  const dz=document.getElementById("dropZone");
+  const blank=document.getElementById("puzzleBlank");
   if(!sheep||!arena)return;
 
   function gpos(e){
     if(e.touches&&e.touches[0])return{x:e.touches[0].clientX,y:e.touches[0].clientY};
     return{x:e.clientX,y:e.clientY};
   }
-  function inDZ(){
-    const sr=sheep.getBoundingClientRect(),dr=dz.getBoundingClientRect();
-    return sr.right>dr.left+10&&sr.left<dr.right;
+  function near(){
+    const sr=sheep.getBoundingClientRect(),br=blank.getBoundingClientRect();
+    const scx=sr.left+sr.width/2,scy=sr.top+sr.height/2;
+    const bcx=br.left+br.width/2,bcy=br.top+br.height/2;
+    return Math.abs(scx-bcx)<br.width*.95&&Math.abs(scy-bcy)<br.height*.85;
   }
   function onStart(e){
     if(dropped)return;
@@ -636,28 +655,37 @@ function initDrag(){
     if(!dragging)return;
     e.preventDefault();
     const p=gpos(e),ar=arena.getBoundingClientRect();
-    let nx=p.x-ar.left-startOX, ny=p.y-ar.top-startOY;
+    let nx=p.x-ar.left-startOX,ny=p.y-ar.top-startOY;
     const sw=sheep.offsetWidth,sh=sheep.offsetHeight;
     nx=Math.max(0,Math.min(ar.width-sw,nx));
     ny=Math.max(0,Math.min(ar.height-sh,ny));
     sheep.style.left=nx+"px";sheep.style.top=ny+"px";
     sheep.style.transform="none";
-    dz.classList.toggle("hover",inDZ());
+    blank.classList.toggle("snap-near",near());
   }
   function onEnd(){
     if(!dragging)return;
     dragging=false;
     sheep.classList.remove("grabbing");
-    if(inDZ()&&!dropped){
+    blank.classList.remove("snap-near");
+    if(near()&&!dropped){
       dropped=true;
-      dz.classList.remove("hover");dz.classList.add("success");
-      sheep.style.left="36%";sheep.style.top="40%";
-      sheep.style.transform="translateY(-50%) scale(.85)";
-      sheep.classList.add("floating");
-      document.getElementById("dropHint").textContent="🎉 도착!";
+      // 하양이를 블랭크 위치로 스냅
+      const ar=arena.getBoundingClientRect(),br=blank.getBoundingClientRect();
+      sheep.style.transition="left .38s cubic-bezier(.34,1.56,.64,1),top .38s cubic-bezier(.34,1.56,.64,1),width .38s";
+      sheep.style.left=(br.left-ar.left)+"px";
+      sheep.style.top=(br.top-ar.top)+"px";
+      sheep.style.width=br.width+"px";
+      sheep.style.transform="none";
+      // 블랭크+양 페이드아웃 → 배경 원본 하양이 노출
+      setTimeout(()=>{
+        blank.style.transition="opacity .44s";blank.style.opacity="0";
+        sheep.style.transition="opacity .44s";sheep.style.opacity="0";
+        setTimeout(()=>{blank.style.display="none";sheep.style.display="none";},460);
+      },420);
       litStar("s2star");succeed();
       document.getElementById("s2msg").innerHTML="🎉 <strong>잘했어요!</strong> 예수님 손을 잡았어요!";
-      setTimeout(()=>{document.getElementById("s2nav").style.display="flex";},800);
+      setTimeout(()=>{document.getElementById("s2nav").style.display="flex";},950);
     } else {
       sheep.classList.add("floating");
     }
