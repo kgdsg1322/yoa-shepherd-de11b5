@@ -129,7 +129,26 @@ body::after{content:'';position:fixed;inset:0;
 .fb-chip.wrong{background:#FBF0EE;border-color:var(--terra);color:var(--terra)}
 @media(min-width:540px){.fb-sentence{font-size:26px}}
 
-/* ═══ matchword 모듈 ═══ */
+/* ═══ matchword(선 잇기) 모듈 ═══ */
+.lc-wrap{position:relative;width:100%;margin:8px 0}
+.lc-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5;overflow:visible}
+.lc-cols{display:flex;justify-content:space-between;gap:16px;align-items:center}
+.lc-col{display:flex;flex-direction:column;gap:18px;flex:1}
+.lc-left{align-items:flex-start}.lc-right{align-items:flex-end}
+.lc-word{min-height:76px;width:100%;max-width:140px;padding:12px 16px;border-radius:20px;border:3px solid var(--royal);
+  background:#fff;color:var(--royal);font-size:21px;font-weight:900;cursor:grab;touch-action:none;
+  display:flex;align-items:center;justify-content:center;position:relative;user-select:none}
+.lc-word.done{border-color:var(--olive);color:var(--olive);background:#EEF7E5;cursor:default}
+.lc-word.armed{background:#EAF1FF;transform:scale(1.05)}
+.lc-img{width:100%;max-width:158px;aspect-ratio:4/3;border-radius:16px;border:4px solid #E0D4BC;
+  background-size:cover;background-position:center;position:relative}
+.lc-img.done{border-color:var(--olive)}
+.lc-dot{position:absolute;width:20px;height:20px;border-radius:50%;top:50%;transform:translateY(-50%);border:3px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.lc-word .lc-dot{right:-10px;background:var(--royal)}
+.lc-img .lc-dot{left:-10px;background:#E0A020}
+.lc-img.wrong{animation:shake .4s}
+
+/* ═══ matchword(구) 미사용 ═══ */
 .mw-imgs{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:8px 0;width:100%}
 .mw-img{width:44%;max-width:180px;aspect-ratio:4/3;border-radius:16px;overflow:hidden;border:4px solid #E0D4BC;background:#f4f4f4;
   background-size:cover;background-position:center;cursor:pointer;touch-action:manipulation;position:relative}
@@ -140,7 +159,21 @@ body::after{content:'';position:fixed;inset:0;
 .mw-word{min-height:76px;padding:14px 22px;border-radius:20px;border:3px solid var(--royal);background:#fff;color:var(--royal);font-size:20px;font-weight:900;cursor:pointer;touch-action:manipulation}
 .mw-word.sel{background:linear-gradient(160deg,#6B9FFF,#2B5BE8);color:#fff}.mw-word.used{opacity:.3;pointer-events:none}
 
-/* ═══ sceneorder 모듈 ═══ */
+/* ═══ sceneorder(드래그 재배치) 모듈 ═══ */
+.so2-hint{font-size:14px;font-weight:800;color:#777;text-align:center;margin:2px 0 10px}
+.so2-list{display:flex;flex-direction:column;gap:8px;width:100%}
+.so2-item{position:relative;width:100%;height:92px;border-radius:14px;overflow:hidden;border:4px solid #E0D4BC;
+  background-size:cover;background-position:center;cursor:grab;touch-action:none;transition:box-shadow .15s}
+.so2-item.dragging{z-index:30;box-shadow:0 12px 24px rgba(0,0,0,.32);opacity:.96;cursor:grabbing}
+.so2-item.locked{border-color:var(--olive)}
+.so2-item.swapflash{animation:soflash .5s}
+@keyframes soflash{0%,100%{border-color:#E0D4BC}50%{border-color:var(--royal)}}
+.so2-num{position:absolute;top:6px;left:6px;width:32px;height:32px;border-radius:50%;background:var(--honey);color:#3A2000;
+  font-weight:900;font-size:17px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 #C49020;z-index:2}
+.so2-cap{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.48);color:#fff;font-size:15px;font-weight:800;text-align:center;padding:4px;z-index:2}
+.so2-grip{position:absolute;top:6px;right:8px;color:rgba(255,255,255,.9);font-size:20px;font-weight:900;text-shadow:0 1px 3px rgba(0,0,0,.5);z-index:2}
+
+/* ═══ sceneorder(구) 미사용 ═══ */
 .so-grid{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:8px 0;width:100%}
 .so-tile{width:44%;max-width:190px;aspect-ratio:16/10;border-radius:16px;overflow:hidden;border:4px solid #E0D4BC;
   background-size:cover;background-position:center;position:relative;cursor:pointer;touch-action:manipulation}
@@ -276,10 +309,10 @@ const WEEK = {
   stampImg: "assets/ppt_image20.webp",
   slots: [
     { role:"말씀 익히기", type:"matchword", content:{
-        배너:"👨‍👩‍👧 단어를 알맞은 그림에 붙여요!", 제목:"단어를 알맞은 그림에 붙여요!", vtag:"마가복음 15:38",
+        배너:"👨‍👩‍👧 단어와 그림을 선으로 이어요!", 제목:"단어와 알맞은 그림을<br>선으로 이어요! ✏️", vtag:"마가복음 15:38",
         쌍:[ {단어:"휘장", img:"assets/ppt_image16.webp"}, {단어:"십자가", img:"assets/ppt_image17.webp"} ] } },
     { role:"이야기 활동", type:"sceneorder", content:{
-        배너:"👨‍👩‍👧 이야기 순서대로 눌러요!", 제목:"이야기 순서대로 눌러요!",
+        배너:"👨‍👩‍👧 그림을 끌어 순서를 맞춰요!", 제목:"이야기 순서대로<br>그림을 끌어 놓아요!",
         장면:[ {img:"assets/ppt_image16.webp",label:"성전 휘장"}, {img:"assets/ppt_image17.webp",label:"십자가"},
                {img:"assets/ppt_image18.webp",label:"찢어졌어요"}, {img:"assets/ppt_image19.webp",label:"길이 열렸어요"} ] } },
     { role:"확인 퀴즈", type:"ox", content:{
@@ -345,8 +378,8 @@ function litStar(id){const e=document.getElementById(id);if(e)e.classList.add("l
 /* ═══════════════════════════════════════════════════════
    엔진 — 슬롯 렌더러 / 화면전환 / 별 게이팅
 ═══════════════════════════════════════════════════════ */
-const DEFAULT_TITLE={ fillblank:"알맞은 말을 골라 넣어요!", matchword:"단어를 알맞은 그림에 붙여요!",
-  dragpuzzle:"그림을 알맞은 자리로 옮겨요!", sceneorder:"이야기 순서대로 눌러요!",
+const DEFAULT_TITLE={ fillblank:"알맞은 말을 골라 넣어요!", matchword:"단어와 그림을 선으로 이어요!",
+  dragpuzzle:"그림을 알맞은 자리로 옮겨요!", sceneorder:"그림을 끌어 순서대로 놓아요!",
   choice2:"알맞은 것을 골라요!", ox:"맞으면 O, 아니면 X!", stub:"완료를 눌러요" };
 const _mounted={};
 function initStars(){
@@ -429,72 +462,83 @@ MODULES.fillblank=(c,ct,done)=>{
   c.appendChild(s); c.appendChild(opts);
 };
 
-/* matchword — 그림-단어 잇기 (단어 탭 ↔ 그림 탭 양방향 자유 매칭) */
+/* matchword — 선 잇기 (단어에서 알맞은 그림으로 손가락으로 선을 그어 연결) */
 MODULES.matchword=(c,ct,done)=>{
-  let selectedWord=null, selectedImg=null, left=(ct.쌍||[]).length;
-  const imgs=document.createElement("div"); imgs.className="mw-imgs";
-  const words=document.createElement("div"); words.className="mw-words";
-  
-  function checkMatch(wordEl, imgEl){
-    if(wordEl._key===imgEl._key){
-      imgEl.classList.add("done"); imgEl.classList.remove("armed");
-      wordEl.classList.add("used"); wordEl.classList.remove("sel");
-      selectedWord=null; selectedImg=null; succeed();
-      if(--left===0) setTimeout(done,500);
-    } else {
-      wrongSnd(); imgEl.classList.add("wrong-blink"); wordEl.classList.add("wrong-blink");
-      imgEl.classList.remove("armed"); wordEl.classList.remove("sel");
-      selectedWord=null; selectedImg=null;
-      setTimeout(()=>{ imgEl.classList.remove("wrong-blink"); wordEl.classList.remove("wrong-blink"); },500);
-    }
-  }
-
-  (ct.쌍||[]).forEach(p=>{
-    const im=document.createElement("div"); im.className="mw-img"; im._key=p.단어;
-    im.style.backgroundImage=`url('${p.img}')`; im.innerHTML=`<div class="tag">${p.단어}</div>`;
-    im.onclick=()=>{ if(im.classList.contains("done"))return;
-      if(selectedImg===im){ im.classList.remove("armed"); selectedImg=null; return; }
-      imgs.querySelectorAll(".mw-img").forEach(x=>x.classList.remove("armed"));
-      im.classList.add("armed"); selectedImg=im;
-      if(selectedWord) checkMatch(selectedWord, selectedImg); };
-    imgs.appendChild(im);
-  });
-  
-  const ws=(ct.쌍||[]).map(p=>p.단어); const ord=ws.map((_,i)=>i);
-  for(let i=ord.length-1;i>0;i--){ const j=(i*7+3)%(i+1); [ord[i],ord[j]]=[ord[j],ord[i]]; }
-  ord.forEach(idx=>{ const w=ws[idx];
-    const b=document.createElement("button"); b.className="mw-word"; b.textContent=w; b._key=w;
-    b.onclick=()=>{ if(b.classList.contains("used"))return;
-      if(selectedWord===b){ b.classList.remove("sel"); selectedWord=null; return; }
-      words.querySelectorAll(".mw-word").forEach(x=>x.classList.remove("sel"));
-      b.classList.add("sel"); selectedWord=b;
-      if(selectedImg) checkMatch(selectedWord, selectedImg); };
-    words.appendChild(b);
-  });
-  c.appendChild(imgs); c.appendChild(words);
+  const pairs=ct.쌍||[]; let leftN=pairs.length;
+  const wrap=document.createElement("div"); wrap.className="lc-wrap";
+  const SVGNS="http://www.w3.org/2000/svg";
+  const svg=document.createElementNS(SVGNS,"svg"); svg.setAttribute("class","lc-svg");
+  const cols=document.createElement("div"); cols.className="lc-cols";
+  const colL=document.createElement("div"); colL.className="lc-col lc-left";
+  const colR=document.createElement("div"); colR.className="lc-col lc-right";
+  cols.appendChild(colL); cols.appendChild(colR);
+  wrap.appendChild(svg); wrap.appendChild(cols); c.appendChild(wrap);
+  // 왼쪽: 단어
+  pairs.forEach(p=>{ const w=document.createElement("div"); w.className="lc-word"; w.textContent=p.단어; w._key=p.단어;
+    const d=document.createElement("div"); d.className="lc-dot"; w.appendChild(d); colL.appendChild(w); });
+  // 오른쪽: 그림(섞어서)
+  const ord=pairs.map((_,i)=>i); for(let i=ord.length-1;i>0;i--){const j=(i*7+3)%(i+1);[ord[i],ord[j]]=[ord[j],ord[i]];}
+  ord.forEach(idx=>{ const p=pairs[idx]; const im=document.createElement("div"); im.className="lc-img"; im._key=p.단어;
+    im.style.backgroundImage=`url('${p.img}')`; const d=document.createElement("div"); d.className="lc-dot"; im.appendChild(d); colR.appendChild(im); });
+  function ptOf(e){ if(e.touches&&e.touches[0])return{x:e.touches[0].clientX,y:e.touches[0].clientY}; return{x:e.clientX,y:e.clientY}; }
+  function anchor(el,side){ const r=el.getBoundingClientRect(),wr=wrap.getBoundingClientRect();
+    return { x:(side==="r"?r.right:r.left)-wr.left, y:r.top+r.height/2-wr.top }; }
+  function rel(e){ const wr=wrap.getBoundingClientRect(),p=ptOf(e); return {x:p.x-wr.left,y:p.y-wr.top}; }
+  function mkline(x1,y1,x2,y2,color){ const l=document.createElementNS(SVGNS,"line");
+    l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);
+    l.setAttribute("stroke",color);l.setAttribute("stroke-width","7");l.setAttribute("stroke-linecap","round"); svg.appendChild(l); return l; }
+  let active=null,temp=null;
+  function start(e,w){ if(w.classList.contains("done"))return; e.preventDefault(); active=w; w.classList.add("armed");
+    const a=anchor(w,"r"); temp=mkline(a.x,a.y,a.x,a.y,"#2B5BE8"); beep(330,.07); }
+  function move(e){ if(!active)return; e.preventDefault(); const r=rel(e); temp.setAttribute("x2",r.x); temp.setAttribute("y2",r.y); }
+  function end(e){ if(!active)return; const p=ptOf(e); const el=document.elementFromPoint(p.x,p.y);
+    const img=el&&el.closest?el.closest(".lc-img"):null;
+    if(img&&!img.classList.contains("done")&&img._key===active._key){
+      const a=anchor(active,"r"),b=anchor(img,"l");
+      temp.setAttribute("x1",a.x);temp.setAttribute("y1",a.y);temp.setAttribute("x2",b.x);temp.setAttribute("y2",b.y);temp.setAttribute("stroke","#7B8C3F");
+      active.classList.add("done");active.classList.remove("armed");img.classList.add("done");succeed();
+      if(--leftN===0) setTimeout(done,400);
+    } else { svg.removeChild(temp); active.classList.remove("armed"); wrongSnd();
+      if(img){ img.classList.add("wrong"); setTimeout(()=>img.classList.remove("wrong"),400); } }
+    active=null;temp=null; }
+  colL.querySelectorAll(".lc-word").forEach(w=>{ w.addEventListener("touchstart",e=>start(e,w),{passive:false}); w.addEventListener("mousedown",e=>start(e,w)); });
+  document.addEventListener("touchmove",move,{passive:false}); document.addEventListener("mousemove",move);
+  document.addEventListener("touchend",end); document.addEventListener("mouseup",end);
+  window.__lcSolve=()=>{ colL.querySelectorAll(".lc-word").forEach(w=>{ if(w.classList.contains("done"))return;
+    const img=[].slice.call(colR.querySelectorAll(".lc-img")).filter(i=>i._key===w._key&&!i.classList.contains("done"))[0];
+    if(!img)return; const a=anchor(w,"r"),b=anchor(img,"l"); mkline(a.x,a.y,b.x,b.y,"#7B8C3F"); w.classList.add("done"); img.classList.add("done"); leftN--; });
+    if(leftN<=0) done(); }; /* TESTHOOK */
 };
 
-/* sceneorder — 장면 순서 맞추기 (순서대로 탭 + 오답 시 다음 타일 힌트) */
+/* sceneorder — 드래그 재배치 (타일을 직접 끌어 위=먼저, 아래=나중 순서로 정렬) */
 MODULES.sceneorder=(c,ct,done)=>{
-  let next=0; const scenes=ct.장면||[]; const total=scenes.length;
-  const grid=document.createElement("div"); grid.className="so-grid";
-  const ord=scenes.map((_,i)=>i);
-  for(let i=ord.length-1;i>0;i--){ const j=(i*7+3)%(i+1); [ord[i],ord[j]]=[ord[j],ord[i]]; }
-  
-  function showHint(){
-    const target=Array.from(grid.querySelectorAll(".so-tile")).find(x=>x._idx===next);
-    if(target){ target.classList.add("so-hint"); setTimeout(()=>target.classList.remove("so-hint"),1200); }
-  }
-
-  ord.forEach(idx=>{ const sc=scenes[idx];
-    const t=document.createElement("div"); t.className="so-tile"; t._idx=idx;
-    t.style.backgroundImage=`url('${sc.img}')`; t.innerHTML=`<div class="so-badge"></div><div class="so-cap">${sc.label||""}</div>`;
-    t.onclick=()=>{ if(t.classList.contains("picked"))return;
-      if(t._idx===next){ t.classList.add("picked"); t.querySelector(".so-badge").textContent=(next+1); next++; succeed(); if(next===total) setTimeout(done,300); }
-      else { wrongSnd(); t.classList.add("wrong"); showHint(); setTimeout(()=>t.classList.remove("wrong"),400); } };
-    grid.appendChild(t);
-  });
-  c.appendChild(grid);
+  const scenes=ct.장면||[]; const N=scenes.length;
+  const hint=document.createElement("div"); hint.className="so2-hint"; hint.textContent="🖐️ 그림을 끌어 위(먼저)→아래(나중) 순서로 놓아요";
+  const list=document.createElement("div"); list.className="so2-list";
+  const pos=scenes.map((_,i)=>i); for(let i=pos.length-1;i>0;i--){const j=(i*7+3)%(i+1);[pos[i],pos[j]]=[pos[j],pos[i]];}
+  const nodes=[];
+  function paint(i){ const sc=scenes[pos[i]],el=nodes[i]; el.style.backgroundImage=`url('${sc.img}')`;
+    el.innerHTML=`<div class="so2-num">${i+1}</div><div class="so2-grip">⋮⋮</div><div class="so2-cap">${sc.label||""}</div>`; }
+  for(let i=0;i<N;i++){ const el=document.createElement("div"); el.className="so2-item"; nodes.push(el); list.appendChild(el); paint(i); }
+  c.appendChild(hint); c.appendChild(list);
+  let locked=false,drag=null,curEl=null,startY=0;
+  function py(e){ return (e.touches&&e.touches[0])?e.touches[0].clientY:e.clientY; }
+  function down(e,i){ if(locked)return; e.preventDefault(); drag=i; curEl=nodes[i]; startY=py(e); curEl.classList.add("dragging"); beep(330,.06); }
+  function move(e){ if(drag===null)return; e.preventDefault(); curEl.style.transform=`translateY(${py(e)-startY}px)`; }
+  function up(e){ if(drag===null)return; const y=py(e); let tgt=drag;
+    for(let i=0;i<N;i++){ if(i===drag)continue; const r=nodes[i].getBoundingClientRect(); if(y>=r.top&&y<=r.bottom){tgt=i;break;} }
+    curEl.classList.remove("dragging"); curEl.style.transform="";
+    if(tgt!==drag){ [pos[drag],pos[tgt]]=[pos[tgt],pos[drag]]; paint(drag); paint(tgt);
+      nodes[drag].classList.add("swapflash"); nodes[tgt].classList.add("swapflash");
+      setTimeout(()=>{nodes[drag]&&nodes[drag].classList.remove("swapflash");nodes[tgt]&&nodes[tgt].classList.remove("swapflash");},500);
+      beep(523,.08); check(); }
+    drag=null; curEl=null; }
+  function check(){ for(let i=0;i<N;i++){ if(pos[i]!==i)return; } locked=true;
+    nodes.forEach(n=>{n.classList.add("locked");n.style.cursor="default";}); succeed(); setTimeout(done,500); }
+  nodes.forEach((el,i)=>{ el.addEventListener("touchstart",e=>down(e,i),{passive:false}); el.addEventListener("mousedown",e=>down(e,i)); });
+  document.addEventListener("touchmove",move,{passive:false}); document.addEventListener("mousemove",move);
+  document.addEventListener("touchend",up); document.addEventListener("mouseup",up);
+  window.__soSolve=()=>{ for(let i=0;i<N;i++){ if(pos[i]!==i){ const j=pos.indexOf(i); [pos[i],pos[j]]=[pos[j],pos[i]]; paint(i);paint(j); } } check(); }; /* TESTHOOK */
 };
 
 /* dragpuzzle — 오브젝트를 제자리로 (touch+mouse) */
