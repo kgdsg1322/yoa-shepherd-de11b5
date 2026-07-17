@@ -134,10 +134,10 @@ body::after{content:'';position:fixed;inset:0;
 .mw-img{width:44%;max-width:180px;aspect-ratio:4/3;border-radius:16px;overflow:hidden;border:4px solid #E0D4BC;background:#f4f4f4;
   background-size:cover;background-position:center;cursor:pointer;touch-action:manipulation;position:relative}
 .mw-img.armed{border-color:var(--royal)}.mw-img.done{border-color:var(--olive)}
-.mw-img .tag{position:absolute;left:0;right:0;bottom:0;background:rgba(123,140,63,.92);color:#fff;font-weight:900;font-size:15px;text-align:center;padding:4px;display:none}
+.mw-img .tag{position:absolute;left:0;right:0;bottom:0;background:rgba(123,140,63,.92);color:#fff;font-weight:900;font-size:16px;text-align:center;padding:4px;display:none}
 .mw-img.done .tag{display:block}
 .mw-words{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:10px}
-.mw-word{min-height:64px;padding:14px 22px;border-radius:20px;border:3px solid var(--royal);background:#fff;color:var(--royal);font-size:20px;font-weight:900;cursor:pointer;touch-action:manipulation}
+.mw-word{min-height:76px;padding:14px 22px;border-radius:20px;border:3px solid var(--royal);background:#fff;color:var(--royal);font-size:20px;font-weight:900;cursor:pointer;touch-action:manipulation}
 .mw-word.sel{background:linear-gradient(160deg,#6B9FFF,#2B5BE8);color:#fff}.mw-word.used{opacity:.3;pointer-events:none}
 
 /* ═══ sceneorder 모듈 ═══ */
@@ -150,7 +150,7 @@ body::after{content:'';position:fixed;inset:0;
 .so-tile.picked .so-badge{display:flex}
 .so-tile.wrong{animation:shake .4s}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
-.so-cap{font-size:13px;font-weight:800;color:#fff;position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.4);padding:3px;text-align:center}
+.so-cap{font-size:15px;font-weight:800;color:#fff;position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.4);padding:3px;text-align:center}
 
 /* ═══ S4 도장 ═══ */
 .stamp-area{display:flex;flex-direction:column;align-items:center;margin:12px 0;gap:10px;}
@@ -184,7 +184,9 @@ body::after{content:'';position:fixed;inset:0;
 .ov-title{font-size:26px;font-weight:900;color:#fff;line-height:1.38}
 .ov-sub{font-size:15px;color:rgba(255,255,255,.85);line-height:1.65}
 .conf{position:fixed;border-radius:3px;animation:fall 2.2s ease-in forwards;z-index:600;pointer-events:none}
-@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+.wrong-blink{border-color:var(--terra)!important;animation:shake .4s}
+.so-tile.so-hint{border-color:var(--honey)!important;box-shadow:0 0 16px var(--honey);animation:hintPulse 1.0s infinite}
+@keyframes hintPulse{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
 </head>
 <body>
@@ -395,18 +397,18 @@ MODULES.choice2=(c,ct,done)=>{
   c.appendChild(row); c.appendChild(fb);
 };
 
-/* ox — O/X 고르기 */
+/* ox — O/X 고르기 (오답 관용 및 재시도 기회 제공) */
 MODULES.ox=(c,ct,done)=>{
   if(ct.질문){ const q=document.createElement("div"); q.className="inst"; q.style.marginBottom="6px"; q.innerHTML=ct.질문; c.appendChild(q); }
   const row=document.createElement("div"); row.className="ox-row";
   const fb=document.createElement("div"); fb.className="feedback"; let chosen=false;
   [["O","o"],["X","x"]].forEach(([mark,cls])=>{
     const b=document.createElement("button"); b.className="ox-btn "+cls; b.textContent=mark;
-    b.onclick=()=>{ if(chosen)return; chosen=true; const ok=(mark===ct.정답);
-      b.classList.add(ok?"correct":"wrong");
-      if(!ok){ const cor=row.querySelector(".ox-btn."+(ct.정답==="O"?"o":"x")); if(cor)cor.classList.add("correct"); }
-      fb.textContent=ok?(ct.해설정답||"맞아요!"):(ct.해설오답||"다시 생각해봐요!"); fb.className="feedback "+(ok?"ok":"no");
-      ok?succeed():wrongSnd(); setTimeout(done, ok?200:700); };
+    b.onclick=()=>{ if(chosen||b.classList.contains("wrong"))return; const ok=(mark===ct.정답);
+      if(ok){ chosen=true; b.classList.add("correct"); fb.textContent=ct.해설정답||"맞아요!"; fb.className="feedback ok";
+        succeed(); setTimeout(done,1500); }
+      else { b.classList.add("wrong"); b.disabled=true; fb.textContent=ct.해설오답||"다시 생각해봐요!"; fb.className="feedback no";
+        wrongSnd(); } };
     row.appendChild(b);
   });
   c.appendChild(row); c.appendChild(fb);
@@ -427,42 +429,69 @@ MODULES.fillblank=(c,ct,done)=>{
   c.appendChild(s); c.appendChild(opts);
 };
 
-/* matchword — 그림-단어 잇기 (단어 탭 → 그림 탭) */
+/* matchword — 그림-단어 잇기 (단어 탭 ↔ 그림 탭 양방향 자유 매칭) */
 MODULES.matchword=(c,ct,done)=>{
-  let armed=null, left=(ct.쌍||[]).length;
+  let selectedWord=null, selectedImg=null, left=(ct.쌍||[]).length;
   const imgs=document.createElement("div"); imgs.className="mw-imgs";
   const words=document.createElement("div"); words.className="mw-words";
+  
+  function checkMatch(wordEl, imgEl){
+    if(wordEl._key===imgEl._key){
+      imgEl.classList.add("done"); imgEl.classList.remove("armed");
+      wordEl.classList.add("used"); wordEl.classList.remove("sel");
+      selectedWord=null; selectedImg=null; succeed();
+      if(--left===0) setTimeout(done,500);
+    } else {
+      wrongSnd(); imgEl.classList.add("wrong-blink"); wordEl.classList.add("wrong-blink");
+      imgEl.classList.remove("armed"); wordEl.classList.remove("sel");
+      selectedWord=null; selectedImg=null;
+      setTimeout(()=>{ imgEl.classList.remove("wrong-blink"); wordEl.classList.remove("wrong-blink"); },500);
+    }
+  }
+
   (ct.쌍||[]).forEach(p=>{
     const im=document.createElement("div"); im.className="mw-img"; im._key=p.단어;
     im.style.backgroundImage=`url('${p.img}')`; im.innerHTML=`<div class="tag">${p.단어}</div>`;
-    im.onclick=()=>{ if(!armed||im.classList.contains("done"))return;
-      if(armed._key===p.단어){ im.classList.add("done"); armed.classList.add("used"); armed.classList.remove("sel"); armed=null; succeed(); if(--left===0) setTimeout(done,250); }
-      else { wrongSnd(); im.classList.add("armed"); setTimeout(()=>im.classList.remove("armed"),500); } };
+    im.onclick=()=>{ if(im.classList.contains("done"))return;
+      if(selectedImg===im){ im.classList.remove("armed"); selectedImg=null; return; }
+      imgs.querySelectorAll(".mw-img").forEach(x=>x.classList.remove("armed"));
+      im.classList.add("armed"); selectedImg=im;
+      if(selectedWord) checkMatch(selectedWord, selectedImg); };
     imgs.appendChild(im);
   });
-  // 단어칩 (index 기반 셔플로 Math.random 회피)
+  
   const ws=(ct.쌍||[]).map(p=>p.단어); const ord=ws.map((_,i)=>i);
   for(let i=ord.length-1;i>0;i--){ const j=(i*7+3)%(i+1); [ord[i],ord[j]]=[ord[j],ord[i]]; }
   ord.forEach(idx=>{ const w=ws[idx];
     const b=document.createElement("button"); b.className="mw-word"; b.textContent=w; b._key=w;
-    b.onclick=()=>{ if(b.classList.contains("used"))return; words.querySelectorAll(".mw-word").forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); armed=b; };
+    b.onclick=()=>{ if(b.classList.contains("used"))return;
+      if(selectedWord===b){ b.classList.remove("sel"); selectedWord=null; return; }
+      words.querySelectorAll(".mw-word").forEach(x=>x.classList.remove("sel"));
+      b.classList.add("sel"); selectedWord=b;
+      if(selectedImg) checkMatch(selectedWord, selectedImg); };
     words.appendChild(b);
   });
   c.appendChild(imgs); c.appendChild(words);
 };
 
-/* sceneorder — 장면 순서 맞추기 (순서대로 탭) */
+/* sceneorder — 장면 순서 맞추기 (순서대로 탭 + 오답 시 다음 타일 힌트) */
 MODULES.sceneorder=(c,ct,done)=>{
   let next=0; const scenes=ct.장면||[]; const total=scenes.length;
   const grid=document.createElement("div"); grid.className="so-grid";
   const ord=scenes.map((_,i)=>i);
   for(let i=ord.length-1;i>0;i--){ const j=(i*7+3)%(i+1); [ord[i],ord[j]]=[ord[j],ord[i]]; }
+  
+  function showHint(){
+    const target=Array.from(grid.querySelectorAll(".so-tile")).find(x=>x._idx===next);
+    if(target){ target.classList.add("so-hint"); setTimeout(()=>target.classList.remove("so-hint"),1200); }
+  }
+
   ord.forEach(idx=>{ const sc=scenes[idx];
     const t=document.createElement("div"); t.className="so-tile"; t._idx=idx;
     t.style.backgroundImage=`url('${sc.img}')`; t.innerHTML=`<div class="so-badge"></div><div class="so-cap">${sc.label||""}</div>`;
     t.onclick=()=>{ if(t.classList.contains("picked"))return;
       if(t._idx===next){ t.classList.add("picked"); t.querySelector(".so-badge").textContent=(next+1); next++; succeed(); if(next===total) setTimeout(done,300); }
-      else { wrongSnd(); t.classList.add("wrong"); setTimeout(()=>t.classList.remove("wrong"),400); } };
+      else { wrongSnd(); t.classList.add("wrong"); showHint(); setTimeout(()=>t.classList.remove("wrong"),400); } };
     grid.appendChild(t);
   });
   c.appendChild(grid);
