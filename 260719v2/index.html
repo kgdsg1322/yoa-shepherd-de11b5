@@ -480,7 +480,7 @@ MODULES.matchword=(c,ct,done)=>{
   const ord=pairs.map((_,i)=>i); for(let i=ord.length-1;i>0;i--){const j=(i*7+3)%(i+1);[ord[i],ord[j]]=[ord[j],ord[i]];}
   ord.forEach(idx=>{ const p=pairs[idx]; const im=document.createElement("div"); im.className="lc-img"; im._key=p.단어;
     im.style.backgroundImage=`url('${p.img}')`; const d=document.createElement("div"); d.className="lc-dot"; im.appendChild(d); colR.appendChild(im); });
-  function ptOf(e){ if(e.touches&&e.touches[0])return{x:e.touches[0].clientX,y:e.touches[0].clientY}; return{x:e.clientX,y:e.clientY}; }
+  function ptOf(e){ var t=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0]); return t?{x:t.clientX,y:t.clientY}:{x:e.clientX,y:e.clientY}; }
   function anchor(el,side){ const r=el.getBoundingClientRect(),wr=wrap.getBoundingClientRect();
     return { x:(side==="r"?r.right:r.left)-wr.left, y:r.top+r.height/2-wr.top }; }
   function rel(e){ const wr=wrap.getBoundingClientRect(),p=ptOf(e); return {x:p.x-wr.left,y:p.y-wr.top}; }
@@ -522,7 +522,7 @@ MODULES.sceneorder=(c,ct,done)=>{
   for(let i=0;i<N;i++){ const el=document.createElement("div"); el.className="so2-item"; nodes.push(el); list.appendChild(el); paint(i); }
   c.appendChild(hint); c.appendChild(list);
   let locked=false,drag=null,curEl=null,startY=0;
-  function py(e){ return (e.touches&&e.touches[0])?e.touches[0].clientY:e.clientY; }
+  function py(e){ var t=(e.touches&&e.touches[0])||(e.changedTouches&&e.changedTouches[0]); return t?t.clientY:e.clientY; }
   function down(e,i){ if(locked)return; e.preventDefault(); drag=i; curEl=nodes[i]; startY=py(e); curEl.classList.add("dragging"); beep(330,.06); }
   function move(e){ if(drag===null)return; e.preventDefault(); curEl.style.transform=`translateY(${py(e)-startY}px)`; }
   function up(e){ if(drag===null)return; const y=py(e); let tgt=drag;
